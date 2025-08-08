@@ -6,7 +6,7 @@ A Next.js app that lets users create public profiles and receive anonymous messa
 - **Auth**: Sign up, email verification, credentials sign-in (NextAuth)
 - **Messaging**: Send anonymous messages to `/u/[username]`
 - **Dashboard**: Copy profile link, toggle accepting messages, list/delete messages
-- **AI Suggestions**: Generate suggested prompts via Google Gemini
+- **AI Suggestions**: Generate suggested prompts via any AI
 - **Validation**: Zod schemas, client + server validation
 - **Email**: Verification emails via Resend
 - **DB**: MongoDB + Mongoose models
@@ -16,7 +16,7 @@ A Next.js app that lets users create public profiles and receive anonymous messa
 - **Auth**: NextAuth (JWT)
 - **DB**: MongoDB, Mongoose
 - **Email**: Resend
-- **AI**: Google Generative AI (Gemini)
+- **AI**: Used Gemini but can be used by any AI of your choice
 - **Validation**: Zod, React Hook Form
 
 ## Project Structure
@@ -96,14 +96,14 @@ Open `http://localhost:3000`.
 - `POST /api/accept-messages` — toggle accepting messages (auth)
 - `POST /api/send-messages` — send message `{ username, content }`
 - `DELETE /api/delete-message/[messageid]` — delete a message (auth)
-- `POST /api/suggest-messages` — AI suggestions (Gemini)
+- `POST /api/suggest-messages` — AI suggestions 
 
 ## Email (Resend) Setup
 - Add `RESEND_API_KEY` to `.env.local`
 - Ensure your sender domain is verified in Resend
 - Check `src/helpers/sendVerificationEmail.ts` for the email content/template and adjust sender as needed
 
-## AI Suggestions (Gemini)
+## AI Suggestions (For Gemini)
 - Get a Gemini API key and set `GEMENI_API_KEY`
 - Endpoint called by the public profile page: `/api/suggest-messages`
 
