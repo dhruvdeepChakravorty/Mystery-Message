@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### Mystery Message — Anonymous Messaging Platform
 
-## Getting Started
+A Next.js app that lets users create public profiles and receive anonymous messages with optional AI-suggested prompts.
 
-First, run the development server:
+## Features
+- **Auth**: Sign up, email verification, credentials sign-in (NextAuth)
+- **Messaging**: Send anonymous messages to `/u/[username]`
+- **Dashboard**: Copy profile link, toggle accepting messages, list/delete messages
+- **AI Suggestions**: Generate suggested prompts via Google Gemini
+- **Validation**: Zod schemas, client + server validation
+- **Email**: Verification emails via Resend
+- **DB**: MongoDB + Mongoose models
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech Stack
+- **Frontend**: Next.js 15 (App Router), React 19, Tailwind CSS
+- **Auth**: NextAuth (JWT)
+- **DB**: MongoDB, Mongoose
+- **Email**: Resend
+- **AI**: Google Generative AI (Gemini)
+- **Validation**: Zod, React Hook Form
+
+## Project Structure
+```
+src/
+  app/
+    (auth)/sign-in | sign-up | verify/[username]
+    (app)/dashboard
+    u/[username]
+    api/
+      auth/[...nextauth]
+      sign-up
+      verify-code
+      check-username-unique
+      accept-messages
+      get-messages
+      send-messages
+      delete-message/[messageid]
+      suggest-messages
+  components/        # UI & shared components
+  lib/               # dbConnect, resend instance, utils
+  models/            # Mongoose models
+  Schemas/           # Zod schemas
+  types/             # NextAuth and API types
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Prerequisites
+- Node.js 18+
+- MongoDB connection string
+- Resend account (for emails)
+- Google Gemini API key
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
+Create `.env.local` in the project root:
+```bash
+# MongoDB
+MONGODB_URI=your_mongodb_connection_string
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# NextAuth
+NEXTAUTH_SECRET=complex_random_string
+# Optional for production
+NEXTAUTH_URL=https://your-deployed-domain.com
 
-## Learn More
+# Resend (email)
+RESEND_API_KEY=your_resend_api_key
 
-To learn more about Next.js, take a look at the following resources:
+# Google Gemini (AI suggestions)
+GEMENI_API_KEY=your_gemini_api_key
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Setup
+```bash
+# Install deps
+npm install
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Dev
+npm run dev
 
-## Deploy on Vercel
+# Build & Start
+npm run build
+npm start
+```
+Open `http://localhost:3000`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Core Flows
+- **Sign Up**: `/sign-up` → checks username availability → registers user → sends code → redirects to `/verify/[username]`
+- **Verify Email**: submit code at `/verify/[username]`
+- **Sign In**: `/sign-in` (NextAuth Credentials)
+- **Dashboard**: `/dashboard` (protected)
+- **Public Profile**: `/u/[username]` → send anonymous messages → fetch AI suggestions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Endpoints (Summary)
+- `POST /api/sign-up` — register user
+- `POST /api/verify-code` — verify email with code
+- `GET /api/check-username-unique?username=...` — validate username
+- `GET /api/get-messages` — fetch user’s messages (auth)
+- `POST /api/accept-messages` — toggle accepting messages (auth)
+- `POST /api/send-messages` — send message `{ username, content }`
+- `DELETE /api/delete-message/[messageid]` — delete a message (auth)
+- `POST /api/suggest-messages` — AI suggestions (Gemini)
+
+## Email (Resend) Setup
+- Add `RESEND_API_KEY` to `.env.local`
+- Ensure your sender domain is verified in Resend
+- Check `src/helpers/sendVerificationEmail.ts` for the email content/template and adjust sender as needed
+
+## AI Suggestions (Gemini)
+- Get a Gemini API key and set `GEMENI_API_KEY`
+- Endpoint called by the public profile page: `/api/suggest-messages`
+
+## Authentication & Access Control
+- Middleware redirects:
+  - Authenticated users → `/dashboard` when visiting `/`, `/sign-in`, `/sign-up`, `/verify/*`
+  - Guests → `/sign-in` when visiting `/dashboard`
+- Session stored as JWT; extra fields added to token/session
+
+## Troubleshooting
+- “Error while checking username”: ensure `MONGODB_URI` is set and reachable
+- AI suggestions not working: ensure `GEMENI_API_KEY` is valid
+- Emails not arriving: verify sender domain in Resend and check logs
+- Build errors about React hooks/component names: ensure page components are exported with a capitalized name
+
+## Scripts
+```bash
+npm run dev     # Start development server
+npm run build   # Build for production
+npm start       # Start production server
+npm run lint    # Lint
+```
+
+## License
+Add your preferred license here.
